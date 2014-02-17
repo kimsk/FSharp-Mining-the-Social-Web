@@ -39,8 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LinqToTwitter">
-      <HintPath>packages\linqtotwitter.2.1.11\lib\net45\LinqToTwitter.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\lib\LinqToTwitter.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -56,7 +55,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <Compile Include="PrettyTable.fs" />
-    <None Include="packages.config" />
     <Compile Include="TwitterCredential.fs" />
     <Compile Include="TwitterContext.fs" />
     <Compile Include="Trends.fs" />
