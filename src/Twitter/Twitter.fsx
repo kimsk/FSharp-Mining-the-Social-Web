@@ -1,4 +1,4 @@
-﻿#r @"packages\linqtotwitter.2.1.11\lib\net45\LinqToTwitter.dll"
+﻿#r @"..\lib\LinqToTwitter.dll"
 
 #load @"TwitterCredential.fs"
 #load @"TwitterContext.fs"
@@ -23,7 +23,7 @@ PrettyTable.show "Common Trends" (commonTrends |> Array.ofSeq)
 
 
 // Example 5. Collecting search results
-let q = "#AnchorDown"
+let q = "#FSharp"
 let statuses = (Search.query q 100).Statuses
 statuses.First().RetweetCount
 statuses.First().RetweetedStatus
@@ -60,13 +60,15 @@ let words = statusTexts |> List.collect (fun s -> (s.Split() |> List.ofArray))
 // Example 7. Creating a basic frequency distribution
 // Example 8. Pretty table
 let getMostCommon (tokens:seq<string>) count =
+    let tokensCount = tokens |> Seq.length
+    let len = if tokensCount <= count then tokensCount else count
     query {
         for t in tokens do
         groupBy t into g
         select (g.Key, g.Count())
     }  
         |> Seq.sortBy (fun x -> -snd(x))
-        |> Seq.take count
+        |> Seq.take len
         |> Seq.map (fun x -> 
             { 
                 PrettyTable.CountRow.Name = fst(x)
@@ -106,3 +108,14 @@ lexicalDiversity words
 lexicalDiversity screenNames
 lexicalDiversity hashTags
 averageWords statusTexts
+
+// Example 10. Finding the most popular retweets
+let retweets = 
+    statuses         
+        |> Seq.filter (fun s -> s.RetweetCount > 0)                                
+        |> Seq.map (fun s -> (s.RetweetCount, s.Text, s.User.Identifier.ScreenName))        
+        |> Seq.distinctBy (fun (_,t,_) -> t)
+        |> Seq.sortBy (fun (c,_,_) -> -c)
+        |> Array.ofSeq
+
+PrettyTable.show "Most Popular Retweets" retweets
