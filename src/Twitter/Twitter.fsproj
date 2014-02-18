@@ -61,6 +61,7 @@
     <Compile Include="Search.fs" />
     <None Include="Twitter.fsx" />
     <Compile Include="Program.fs" />
+    <None Include="README.md" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
