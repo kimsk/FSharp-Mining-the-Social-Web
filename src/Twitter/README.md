@@ -5,7 +5,7 @@
 
 ####Linq To Twitter
 #####Trends
-```
+```fsharp
 let getTrends trend_id = 
         query {
             for trend in ctx.Trends do
@@ -15,7 +15,7 @@ let getTrends trend_id =
         }
 ```
 #####Seach
-```
+```fsharp
 let query q num = 
     query {
         for searchResult in ctx.Search do
@@ -29,7 +29,7 @@ let query q num =
 
 
 ####Example 2. Retrieving Trends
-```
+```fsharp
 let world_woe_id = 1
 let us_woe_id = 23424977  
 
@@ -38,12 +38,12 @@ let usTrends = Trends.getTrends us_woe_id
 ```
 
 ####Example 4. Computing the intersection of two sets of trends
-```
+```fsharp
 let commonTrends = usTrends |> worldTrends.Intersect
 ```
 
 ####Example 5. Collecting search results
-```
+```fsharp
 let q = "#FSharp"
 let statuses = (Search.query q 100).Statuses
 statuses.First().RetweetCount
@@ -51,7 +51,7 @@ statuses.First().RetweetedStatus
 ```
 
 ####Example 6. Extracting text, screen names, and hashtags from tweets
-```
+```fsharp
 let usersMentioned = 
     [
         for status in statuses do
@@ -82,7 +82,7 @@ let words = statusTexts |> List.collect (fun s -> (s.Split() |> List.ofArray))
 ```
 
 ####Example 7. Creating a basic frequency distribution
-```
+```fsharp
 let getMostCommon (tokens:seq<string>) count =
     let tokensCount = tokens |> Seq.length
     let len = if tokensCount <= count then tokensCount else count
@@ -107,7 +107,7 @@ let getMostCommon (tokens:seq<string>) count =
 ```
 
 ####Example 8. F# PrettyTable using DataGrid
-```
+```fsharp
 module PrettyTable
 
 open System.Drawing
@@ -130,7 +130,7 @@ let show title dataSource =
 ```
 
 ####Example 9. Calculating lexical diversity for tweets
-```
+```fsharp
 let lexicalDiversity (tokens:seq<string>) =
         1.0 * (tokens |> Set.ofSeq |> Seq.length |> float)/(tokens |> Seq.length |>float)
 
@@ -149,7 +149,7 @@ averageWords statusTexts
 ```
 
 ####Example 10. Finding the most popular retweets
-```
+```fsharp
 let retweets = 
     statuses         
         |> Seq.filter (fun s -> s.RetweetCount > 0)                                
