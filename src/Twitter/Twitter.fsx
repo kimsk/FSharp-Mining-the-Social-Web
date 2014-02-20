@@ -8,6 +8,7 @@
 open LinqToTwitter
 open System.Linq
 
+
 // Example 2. Retrieving trends
 let world_woe_id = 1
 let us_woe_id = 23424977  
@@ -26,8 +27,18 @@ PrettyTable.show "Common Trends" (commonTrends |> Array.ofSeq)
 let q = "#FSharp"
 let searchResult = Search.getSearchResult q 100
 let statuses = searchResult.Statuses
-statuses.First().RetweetCount
-statuses.First().RetweetedStatus
+
+statuses |> Seq.map (fun s -> s.StatusID) |> Array.ofSeq
+
+// get five batches, 100 tweets each
+Search.getStatuses q 100 5
+    |> List.rev
+    |> List.map (fun s -> s.StatusID, s.User.Identifier.ScreenName, s.Text, s.CreatedAt) 
+    |> Set.ofList    
+    |> Seq.mapi (fun i (s, n, t, c) -> i+1, s, n , t, c)
+    |> Array.ofSeq
+    |> Array.sortBy (fun (_, _, name, _, _) -> name.ToLower())
+    |> PrettyTable.show "Five batches of results"
 
 // example 6.
 let usersMentioned = 
