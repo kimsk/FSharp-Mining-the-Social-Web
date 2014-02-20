@@ -33,9 +33,9 @@ statuses |> Seq.map (fun s -> s.StatusID) |> Array.ofSeq
 // get five batches, 100 tweets each
 Search.getStatuses q 100 5
     |> List.rev
-    |> List.map (fun s -> s.StatusID, s.User.Identifier.ScreenName, s.Text, s.CreatedAt) 
+    |> List.mapi (fun i s -> i+1, s.StatusID, s.User.Identifier.ScreenName, s.Text, s.CreatedAt) 
     |> Set.ofList    
-    |> Seq.mapi (fun i (s, n, t, c) -> i+1, s, n , t, c)
+    |> Seq.mapi (fun i (_, s, n, t, c) -> i+1, s, n , t, c)
     |> Array.ofSeq
     |> Array.sortBy (fun (_, _, name, _, _) -> name.ToLower())
     |> PrettyTable.show "Five batches of results"
