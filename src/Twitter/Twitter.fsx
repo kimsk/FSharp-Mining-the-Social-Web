@@ -24,7 +24,8 @@ PrettyTable.show "Common Trends" (commonTrends |> Array.ofSeq)
 
 // Example 5. Collecting search results
 let q = "#FSharp"
-let statuses = (Search.query q 100).Statuses
+let searchResult = Search.getSearchResult q 100
+let statuses = searchResult.Statuses
 statuses.First().RetweetCount
 statuses.First().RetweetedStatus
 
