@@ -169,7 +169,7 @@ let retweets =
 PrettyTable.show "Most Popular Retweets" retweets
 ```
 
-#Example 11. Looking up users who have retweeted a status
+#####Example 11. Looking up users who have retweeted a status
 ```fsharp
 let mostPopularStatusId = 
     (statuses         
