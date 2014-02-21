@@ -6,8 +6,9 @@
 #load @"Search.fs"
 #load @"PrettyTable.fs"
 open LinqToTwitter
+open System
 open System.Linq
-
+open TwitterContext
 
 // Example 2. Retrieving trends
 let world_woe_id = 1
@@ -24,20 +25,18 @@ PrettyTable.show "Common Trends" (commonTrends |> Array.ofSeq)
 
 
 // Example 5. Collecting search results
-let q = "#FSharp"
-let searchResult = Search.getSearchResult q 100
-let statuses = searchResult.Statuses
-
-statuses |> Seq.map (fun s -> s.StatusID) |> Array.ofSeq
+let q = "#fsharp"
 
 // get five batches, 100 tweets each
-Search.getStatuses q 100 5
-    |> List.rev
-    |> List.mapi (fun i s -> i+1, s.StatusID, s.User.Identifier.ScreenName, s.Text, s.CreatedAt) 
-    |> Set.ofList    
-    |> Seq.mapi (fun i (_, s, n, t, c) -> i+1, s, n , t, c)
-    |> Array.ofSeq
-    |> Array.sortBy (fun (_, _, name, _, _) -> name.ToLower())
+let statuses = Search.getStatuses q 100 5
+
+statuses
+    |> List.rev    
+    |> Seq.distinctBy (fun s -> (s.Text, s.ScreenName)) 
+    |> Seq.sortBy (fun s -> -s.RetweetCount)
+    |> Seq.map (fun s -> s.StatusID, s.User.Identifier.ScreenName, s.Text, s.CreatedAt, s.RetweetCount)     
+    |> Seq.mapi (fun i (s, n, t, c, r) -> i+1, s, n, t, c, r)
+    |> Array.ofSeq    
     |> PrettyTable.show "Five batches of results"
 
 // example 6.
@@ -124,10 +123,38 @@ averageWords statusTexts
 // Example 10. Finding the most popular retweets
 let retweets = 
     statuses         
-        |> Seq.filter (fun s -> s.RetweetCount > 0)                                
-        |> Seq.map (fun s -> (s.RetweetCount, s.Text, s.User.Identifier.ScreenName))        
-        |> Seq.distinctBy (fun (_,t,_) -> t)
-        |> Seq.sortBy (fun (c,_,_) -> -c)
+        |> Seq.filter (fun s -> s.RetweetCount > 0)
+        |> Seq.distinctBy (fun s -> s.Text)
+        |> Seq.sortBy (fun s -> -s.RetweetCount)                                
+        |> Seq.map (fun s -> (s.StatusID, s.RetweetCount, s.Text, s.User.Identifier.ScreenName))        
         |> Array.ofSeq
 
 PrettyTable.show "Most Popular Retweets" retweets
+
+
+// Example 11. Looking up users who have retweeted a status
+let mostPopularStatusId = 
+    (statuses         
+        |> Seq.sortBy (fun s -> -s.RetweetCount)    
+        |> Seq.map (fun s -> s.RetweetedStatus.StatusID)).First()
+
+let retweeters = 
+    let users = 
+        (query {
+            for tweet in ctx.Status do
+            where (tweet.Type = StatusType.Retweeters)
+            where (tweet.ID = mostPopularStatusId)
+            select tweet
+            exactlyOne
+        }).Users
+        |> Seq.map (fun u -> u.ToString())
+        |> Seq.reduce (fun acc u -> acc + ", " + u)
+    
+    query{
+        for user in ctx.User do
+        where (user.Type = UserType.Lookup)
+        where (user.UserID = users)
+        select user.Identifier.ScreenName
+    } |> Array.ofSeq
+
+retweeters |> PrettyTable.showListOfStrings "Retweeters"

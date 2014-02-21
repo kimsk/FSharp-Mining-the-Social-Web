@@ -44,10 +44,19 @@ let commonTrends = usTrends |> worldTrends.Intersect
 
 ####Example 5. Collecting search results
 ```fsharp
-let q = "#FSharp"
-let statuses = (Search.query q 100).Statuses
-statuses.First().RetweetCount
-statuses.First().RetweetedStatus
+let q = "#fsharp"
+
+// get five batches, 100 tweets each
+let statuses = Search.getStatuses q 100 5
+
+statuses
+    |> List.rev    
+    |> Seq.distinctBy (fun s -> (s.Text, s.ScreenName)) 
+    |> Seq.sortBy (fun s -> -s.RetweetCount)
+    |> Seq.map (fun s -> s.StatusID, s.User.Identifier.ScreenName, s.Text, s.CreatedAt, s.RetweetCount)     
+    |> Seq.mapi (fun i (s, n, t, c, r) -> i+1, s, n, t, c, r)
+    |> Array.ofSeq    
+    |> PrettyTable.show "Five batches of results"
 ```
 
 ####Example 6. Extracting text, screen names, and hashtags from tweets
@@ -161,8 +170,37 @@ let retweets =
 PrettyTable.show "Most Popular Retweets" retweets
 ```
 
+#Example 11. Looking up users who have retweeted a status
+```fsharp
+let mostPopularStatusId = 
+    (statuses         
+        |> Seq.sortBy (fun s -> -s.RetweetCount)    
+        |> Seq.map (fun s -> s.RetweetedStatus.StatusID)).First()
+
+let retweeters = 
+    let users = 
+        (query {
+            for tweet in ctx.Status do
+            where (tweet.Type = StatusType.Retweeters)
+            where (tweet.ID = mostPopularStatusId)
+            select tweet
+            exactlyOne
+        }).Users
+        |> Seq.map (fun u -> u.ToString())
+        |> Seq.reduce (fun acc u -> acc + ", " + u)
+    
+    query{
+        for user in ctx.User do
+        where (user.Type = UserType.Lookup)
+        where (user.UserID = users)
+        select user.Identifier.ScreenName
+    } |> Array.ofSeq
+
+retweeters |> PrettyTable.showListOfStrings "Retweeters"
+```
+
 ##Credits
-* [Don Syme](https://twitter.com/dsyme) for F# :-) and his tips for [Visualizing Data in a Grid](http://blogs.msdn.com/b/dsyme/archive/2010/01/08/f-interactive-tips-and-tricks-visualizing-data-in-a-grid.aspx)
+* [Don Syme](https://twitter.com/dsyme) and Microsoft for F# :-) and his tips for [Visualizing Data in a Grid](http://blogs.msdn.com/b/dsyme/archive/2010/01/08/f-interactive-tips-and-tricks-visualizing-data-in-a-grid.aspx)
 * [Joe Mayo](https://twitter.com/JoeMayo) for his awesome [LINQ to Twitter](https://linqtotwitter.codeplex.com/)
 
 
