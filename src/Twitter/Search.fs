@@ -29,13 +29,14 @@ let getSearchResultWithMaxId q num maxId =
 let getStatuses q num batches =
     let s2ul (s:string) = Convert.ToUInt64(s)
 
-    let statuses = (getSearchResult q num).Statuses |> List.ofSeq
+    let getStatuses q maxId =
+        (getSearchResultWithMaxId q num maxId).Statuses |> List.ofSeq |> List.rev
 
-    let rec getSearchResultsRec q batches (statuses:list<Status>) =
-        match batches with
-        | 0 -> []
-        | _ ->
-            let maxId =  (statuses.Last().StatusID |> s2ul) - 1UL
-            getSearchResultsRec q (batches-1) statuses @ ((getSearchResultWithMaxId q num maxId).Statuses |> List.ofSeq)            
-                        
-    statuses @ getSearchResultsRec q (batches-1) statuses
+    let combineStatuses (acc:Status list) _ =
+        let maxId =  
+            if acc = [] then UInt64.MaxValue
+            else (acc |> List.head |> (fun s -> s.StatusID)  |> s2ul) - 1UL
+        (getStatuses q maxId) @ acc
+
+    [0..batches] 
+        |> List.fold combineStatuses []

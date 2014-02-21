@@ -33,8 +33,7 @@ let statuses = Search.getStatuses q 100 5
 statuses    
     |> Seq.distinctBy (fun s -> (s.Text, s.ScreenName)) 
     |> Seq.sortBy (fun s -> -s.RetweetCount)
-    |> Seq.map (fun s -> s.StatusID, s.User.Identifier.ScreenName, s.Text, s.CreatedAt, s.RetweetCount)     
-    |> Seq.mapi (fun i (s, n, t, c, r) -> i+1, s, n, t, c, r)
+    |> Seq.mapi (fun i s -> i+1, s.StatusID, s.User.Identifier.ScreenName, s.Text, s.CreatedAt, s.RetweetCount)    
     |> Array.ofSeq    
     |> PrettyTable.show "Five batches of results"
 
@@ -154,6 +153,6 @@ let retweeters =
         where (user.Type = UserType.Lookup)
         where (user.UserID = users)
         select user.Identifier.ScreenName
-    } |> Array.ofSeq
+    } |> Array.ofSeq |> Array.mapi (fun i u -> i+1, u)
 
-retweeters |> PrettyTable.showListOfStrings "Retweeters"
+retweeters |> PrettyTable.show "Retweeters"
