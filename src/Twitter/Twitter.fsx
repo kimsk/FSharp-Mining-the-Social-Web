@@ -30,8 +30,7 @@ let q = "#fsharp"
 // get five batches, 100 tweets each
 let statuses = Search.getStatuses q 100 5
 
-statuses
-    |> List.rev    
+statuses    
     |> Seq.distinctBy (fun s -> (s.Text, s.ScreenName)) 
     |> Seq.sortBy (fun s -> -s.RetweetCount)
     |> Seq.map (fun s -> s.StatusID, s.User.Identifier.ScreenName, s.Text, s.CreatedAt, s.RetweetCount)     
