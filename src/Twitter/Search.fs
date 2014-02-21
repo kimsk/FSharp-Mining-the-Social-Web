@@ -32,11 +32,11 @@ let getStatuses q num batches =
     let getStatuses q maxId =
         (getSearchResultWithMaxId q num maxId).Statuses |> List.ofSeq |> List.rev
 
-    let combineStatuses (acc:Status list) _ =
+    let combinedStatuses (acc:Status list) _ =
         let maxId =  
             if acc = [] then UInt64.MaxValue
             else (acc |> List.head |> (fun s -> s.StatusID)  |> s2ul) - 1UL
         (getStatuses q maxId) @ acc
 
     [0..batches] 
-        |> List.fold combineStatuses []
+        |> List.fold combinedStatuses []

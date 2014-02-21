@@ -16,7 +16,7 @@ let buildForm title =
 
 let show title dataSource =
     let data = buildForm title
-    data.DataSource <- dataSource
+    data.DataSource <- (dataSource |> Array.ofSeq)
 
 type CountRow = { Name:string ; Count:int }
 let showCounts title dataSource =    
@@ -38,8 +38,8 @@ let showCounts title dataSource =
       
 type StringRow = { Text:string }       
 let showListOfStrings title strings =
-    let dataSource = strings |> Array.map (fun s -> { Text = s })
+    let dataSource = strings |> Seq.map (fun s -> { Text = s })
     
     let data = buildForm title
 
-    data.DataSource <- dataSource
+    data.DataSource <- (dataSource |> Array.ofSeq)

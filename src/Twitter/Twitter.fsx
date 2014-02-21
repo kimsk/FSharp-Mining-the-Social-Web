@@ -16,25 +16,24 @@ let us_woe_id = 23424977
 
 let worldTrends = Trends.getTrends world_woe_id
 let usTrends = Trends.getTrends us_woe_id
-PrettyTable.show "World Trends" (worldTrends |> Array.ofSeq)
-PrettyTable.show "US Trends" (usTrends |> Array.ofSeq)
+PrettyTable.show "World Trends" (worldTrends)
+PrettyTable.show "US Trends" (usTrends)
 
 // Example 4. Computing the intersection of two sets of trends
 let commonTrends = usTrends |> worldTrends.Intersect
-PrettyTable.show "Common Trends" (commonTrends |> Array.ofSeq)
+PrettyTable.show "Common Trends" (commonTrends)
 
 
 // Example 5. Collecting search results
 let q = "#fsharp"
 
 // get five batches, 100 tweets each
-let statuses = Search.getStatuses q 100 5
+let statuses = Search.getStatuses q 100 20
 
 statuses    
     |> Seq.distinctBy (fun s -> (s.Text, s.ScreenName)) 
     |> Seq.sortBy (fun s -> -s.RetweetCount)
     |> Seq.mapi (fun i s -> i+1, s.StatusID, s.User.Identifier.ScreenName, s.Text, s.CreatedAt, s.RetweetCount)    
-    |> Array.ofSeq    
     |> PrettyTable.show "Five batches of results"
 
 // example 6.
@@ -124,8 +123,7 @@ let retweets =
         |> Seq.filter (fun s -> s.RetweetCount > 0)
         |> Seq.distinctBy (fun s -> s.Text)
         |> Seq.sortBy (fun s -> -s.RetweetCount)                                
-        |> Seq.map (fun s -> (s.StatusID, s.RetweetCount, s.Text, s.User.Identifier.ScreenName))        
-        |> Array.ofSeq
+        |> Seq.map (fun s -> (s.StatusID, s.RetweetCount, s.Text, s.User.Identifier.ScreenName))                
 
 PrettyTable.show "Most Popular Retweets" retweets
 
@@ -156,3 +154,17 @@ let retweeters =
     } |> Array.ofSeq |> Array.mapi (fun i u -> i+1, u)
 
 retweeters |> PrettyTable.show "Retweeters"
+
+
+// Example 12. Plotting frequencies of words
+words |> PrettyTable.showListOfStrings "Words"
+
+let countWords = 
+    query {
+        for word in words do
+        groupBy word into g
+        select (g.Key, g.Count())
+    }  
+        |> Seq.sortBy (fun x -> -snd(x))
+
+countWords |> PrettyTable.show "Word Counts"
