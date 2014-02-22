@@ -199,13 +199,19 @@ averageWords statusTexts
 
 ####Example 10. Finding the most popular retweets
 ```fsharp
+type RetweetTable = { Count:int; Handle:string; Text:string}
 let retweets = 
     statuses         
         |> Seq.filter (fun s -> s.RetweetCount > 0)
         |> Seq.distinctBy (fun s -> s.Text)
         |> Seq.sortBy (fun s -> -s.RetweetCount)                                
-        |> Seq.map (fun s -> (s.RetweetCount, s.User.Identifier.ScreenName, s.Text))     
+        |> Seq.map (fun s -> (s.RetweetCount, s.User.Identifier.ScreenName, s.Text))                
+
+(retweets |> Seq.map (fun (c,n,t) -> {Count=c; Handle=n; Text=t}))
+    |> PrettyTable.show "Most Popular Retweets"  
 ```
+![Most popular retweets](https://raw.github.com/kimsk/FSharp-Mining-the-Social-Web/master/src/images/Twitter-Example-10-MostPopularRetweets.PNG)
+
 
 ####Example 11. Looking up users who have retweeted a status
 ```fsharp
@@ -253,6 +259,9 @@ idxFreqLogLog |> PrettyTable.show "Index and Frequency"
 (Chart.Line(idxFreqLogLog, Name="Example 12", Title="Frequency Data", YTitle="Freq", XTitle="Word Rank")).ShowChart()
 ```
 
+![Frequencies of Words](https://raw.github.com/kimsk/FSharp-Mining-the-Social-Web/master/src/images/Twitter-Example-12-FrequenciesOfWords.PNG)
+
+
 ####Example 13. Generating histograms of words, screen names, and hashtags
 ```fsharp
 let getHistogram items =
@@ -284,6 +293,13 @@ Chart.Column(screenNamesHistogram, Name="Screen Names", YTitle=yTitle, XTitle=xT
 Chart.Column(hashtagsHistogram, Name="Hashtags", YTitle=yTitle, XTitle=xTitle).ShowChart()
 ```
 
+![Words Histogram](https://raw.github.com/kimsk/FSharp-Mining-the-Social-Web/master/src/images/Twitter-Example-13-WordsHistogram.PNG)
+
+![Screen Names Histogram](https://raw.github.com/kimsk/FSharp-Mining-the-Social-Web/master/src/images/Twitter-Example-13-ScreenNamesHistogram.PNG)
+
+![Hashtags Histogram](https://raw.github.com/kimsk/FSharp-Mining-the-Social-Web/master/src/images/Twitter-Example-13-HashtagsHistogram.PNG)
+
+
 ####Example 14. Generating a histogram of retweet counts
 ```fsharp
 let retweetsHistogram = 
@@ -294,3 +310,6 @@ let retweetsHistogram =
 
 Chart.Column(retweetsHistogram, Name="Retweets", YTitle=yTitle, XTitle=xTitle).ShowChart()
 ```
+
+![Retweets Histogram](https://raw.github.com/kimsk/FSharp-Mining-the-Social-Web/master/src/images/Twitter-Example-14-RetweetsHistogram.PNG)
+
