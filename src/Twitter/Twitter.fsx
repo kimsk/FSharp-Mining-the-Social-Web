@@ -118,6 +118,7 @@ lexicalDiversity hashtags
 averageWords statusTexts
 
 // Example 10. Finding the most popular retweets
+type RetweetTable = { Count:int; Handle:string; Text:string}
 let retweets = 
     statuses         
         |> Seq.filter (fun s -> s.RetweetCount > 0)
@@ -125,7 +126,8 @@ let retweets =
         |> Seq.sortBy (fun s -> -s.RetweetCount)                                
         |> Seq.map (fun s -> (s.RetweetCount, s.User.Identifier.ScreenName, s.Text))                
 
-PrettyTable.show "Most Popular Retweets" retweets
+(retweets |> Seq.map (fun (c,n,t) -> {Count=c; Handle=n; Text=t}))
+    |> PrettyTable.show "Most Popular Retweets" 
 
 
 // Example 11. Looking up users who have retweeted a status
@@ -175,7 +177,7 @@ let idxFreqLogLog =
         |> Seq.sortBy (fun x -> -snd(x))
         |> Seq.mapi (fun i x ->  log(float (i+1)), log(float <| snd(x)))        
 
-idxFreqLogLog |> PrettyTable.show "Index and Frequency"
+idxFreqLogLog |> PrettyTable.show "Frequencies of Words"
 
 (Chart.Line(idxFreqLogLog, Name="Example 12", Title="Frequency Data", YTitle="Freq", XTitle="Word Rank")).ShowChart()
 
