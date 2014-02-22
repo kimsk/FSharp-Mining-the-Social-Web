@@ -3,6 +3,13 @@
 
 >The first chapter is available [here](http://nbviewer.ipython.org/github/ptwobrussell/Mining-the-Social-Web-2nd-Edition/blob/master/ipynb/__Chapter%201%20-%20Mining%20Twitter%20%28Full-Text%20Sampler%29.ipynb).
 
+##Credits
+* [Matthew A. Russell](https://twitter.com/ptwobrussell), the author of [Mining the Social Web: Data Mining Facebook, Twitter, LinkedIn, Google+,and More](http://shop.oreilly.com/product/0636920030195.do)
+* [Don Syme](https://twitter.com/dsyme) and people at Microsoft for F# :-).
+* [Joe Mayo](https://twitter.com/JoeMayo) for his awesome [LINQ to Twitter](https://linqtotwitter.codeplex.com/)
+* [Visualizing Data in a Grid](http://blogs.msdn.com/b/dsyme/archive/2010/01/08/f-interactive-tips-and-tricks-visualizing-data-in-a-grid.aspx)
+* [FSharp.Charting](http://fsharp.github.io/FSharp.Charting/)
+
 ####Linq To Twitter
 #####Trends
 ```fsharp
@@ -16,6 +23,7 @@ let getTrends trend_id =
 ```
 #####Seach
 ```fsharp
+// get search result
 let getSearchResult q num = 
     query {
         for searchResult in ctx.Search do
@@ -26,6 +34,7 @@ let getSearchResult q num =
         exactlyOne        
     }
 
+// get search result with specific maxId
 let getSearchResultWithMaxId q num maxId = 
     query {
         for searchResult in ctx.Search do
@@ -37,20 +46,21 @@ let getSearchResultWithMaxId q num maxId =
         exactlyOne        
     }
 
+// get statuses from number of batches
 let getStatuses q num batches =
     let s2ul (s:string) = Convert.ToUInt64(s)
 
     let getStatuses q maxId =
         (getSearchResultWithMaxId q num maxId).Statuses |> List.ofSeq |> List.rev
 
-    let combineStatuses (acc:Status list) _ =
+    let combinedStatuses (acc:Status list) _ =
         let maxId =  
             if acc = [] then UInt64.MaxValue
             else (acc |> List.head |> (fun s -> s.StatusID)  |> s2ul) - 1UL
         (getStatuses q maxId) @ acc
 
     [0..batches] 
-        |> List.fold combineStatuses []
+        |> List.fold combinedStatuses []
 ```
 
 
@@ -78,9 +88,7 @@ let statuses = Search.getStatuses q 100 5
 statuses    
     |> Seq.distinctBy (fun s -> (s.Text, s.ScreenName)) 
     |> Seq.sortBy (fun s -> -s.RetweetCount)
-    |> Seq.map (fun s -> s.StatusID, s.User.Identifier.ScreenName, s.Text, s.CreatedAt, s.RetweetCount)     
-    |> Seq.mapi (fun i (s, n, t, c, r) -> i+1, s, n, t, c, r)
-    |> Array.ofSeq    
+    |> Seq.mapi (fun i s -> i+1, s.StatusID, s.User.Identifier.ScreenName, s.Text, s.CreatedAt, s.RetweetCount)    
     |> PrettyTable.show "Five batches of results"
 ```
 
@@ -111,7 +119,7 @@ let words = statusTexts |> List.collect (fun s -> (s.Split() |> List.ofArray))
 
 (statusTexts |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Status Texts" 
 (screenNames |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Screen Names"
-(hashTags |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Hashtags"
+(hashtags |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Hashtags"
 (words |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Words"
 ```
 
@@ -137,7 +145,7 @@ let getMostCommon (tokens:seq<string>) count =
 
 (getMostCommon words 10) |> PrettyTable.showCounts "Words"
 (getMostCommon screenNames 10) |> PrettyTable.showCounts "Screen Names"
-(getMostCommon hashTags 10) |> PrettyTable.showCounts "Hashtags"
+(getMostCommon hashtags 10) |> PrettyTable.showCounts "Hashtags"
 ```
 
 ![Words](https://raw.github.com/kimsk/FSharp-Mining-the-Social-Web/master/src/images/Twitter-Example-8-Words.PNG)
@@ -185,7 +193,7 @@ let averageWords (statusTexts:seq<string>) =
 
 lexicalDiversity words
 lexicalDiversity screenNames
-lexicalDiversity hashTags
+lexicalDiversity hashtags
 averageWords statusTexts
 ```
 
@@ -193,13 +201,10 @@ averageWords statusTexts
 ```fsharp
 let retweets = 
     statuses         
-        |> Seq.filter (fun s -> s.RetweetCount > 0)                                
-        |> Seq.map (fun s -> (s.RetweetCount, s.Text, s.User.Identifier.ScreenName))        
-        |> Seq.distinctBy (fun (_,t,_) -> t)
-        |> Seq.sortBy (fun (c,_,_) -> -c)
-        |> Array.ofSeq
-
-PrettyTable.show "Most Popular Retweets" retweets
+        |> Seq.filter (fun s -> s.RetweetCount > 0)
+        |> Seq.distinctBy (fun s -> s.Text)
+        |> Seq.sortBy (fun s -> -s.RetweetCount)                                
+        |> Seq.map (fun s -> (s.RetweetCount, s.User.Identifier.ScreenName, s.Text))     
 ```
 
 ####Example 11. Looking up users who have retweeted a status
@@ -227,13 +232,65 @@ let retweeters =
         where (user.UserID = users)
         select user.Identifier.ScreenName
     } |> Array.ofSeq |> Array.mapi (fun i u -> i+1, u)
-
-retweeters |> PrettyTable.show "Retweeters"
 ```
 
-##Credits
-* [Don Syme](https://twitter.com/dsyme) and Microsoft for F# :-) and his tips for [Visualizing Data in a Grid](http://blogs.msdn.com/b/dsyme/archive/2010/01/08/f-interactive-tips-and-tricks-visualizing-data-in-a-grid.aspx)
-* [Joe Mayo](https://twitter.com/JoeMayo) for his awesome [LINQ to Twitter](https://linqtotwitter.codeplex.com/)
+####Example 12. Plotting frequencies of words
+```fsharp
+let wordCounts = 
+    query {
+        for word in words do
+        groupBy word into g
+        select (g.Key, g.Count())
+    } 
+    
+let idxFreqLogLog =  
+    wordCounts
+        |> Seq.sortBy (fun x -> -snd(x))
+        |> Seq.mapi (fun i x ->  log(float (i+1)), log(float <| snd(x)))        
 
+idxFreqLogLog |> PrettyTable.show "Index and Frequency"
 
+(Chart.Line(idxFreqLogLog, Name="Example 12", Title="Frequency Data", YTitle="Freq", XTitle="Word Rank")).ShowChart()
+```
 
+####Example 13. Generating histograms of words, screen names, and hashtags
+```fsharp
+let getHistogram items =
+    items 
+        |> Seq.groupBy (snd) 
+        |> Seq.map (fun (k,s) -> k, s.Count())
+        |> Seq.sortBy (fst)
+
+let wordsHistogram = getHistogram wordCounts |> Seq.take 20
+let screenNamesHistogram = 
+    query{
+        for screenName in screenNames do
+        groupBy screenName into g
+        select (g.Key, g.Count())
+    } |> getHistogram |> Seq.take 12
+
+let hashtagsHistogram = 
+    query{
+        for hashtag in hashtags do
+        groupBy hashtag into g
+        select (g.Key, g.Count())
+    } |> getHistogram |> Seq.take 12
+
+let yTitle = "Number of items in bin"
+let xTitle = "Bins (number of times an items appeared)"
+Chart.Column(wordsHistogram, Name="Words", YTitle=yTitle, XTitle=xTitle)
+    .ShowChart()
+Chart.Column(screenNamesHistogram, Name="Screen Names", YTitle=yTitle, XTitle=xTitle).ShowChart()
+Chart.Column(hashtagsHistogram, Name="Hashtags", YTitle=yTitle, XTitle=xTitle).ShowChart()
+```
+
+####Example 14. Generating a histogram of retweet counts
+```fsharp
+let retweetsHistogram = 
+    retweets     
+    |> Seq.groupBy (fun (c,_,_) -> c)
+    |> Seq.map (fun (k,s) -> k, s.Count())
+    |> Seq.sortBy (fst)
+
+Chart.Column(retweetsHistogram, Name="Retweets", YTitle=yTitle, XTitle=xTitle).ShowChart()
+```

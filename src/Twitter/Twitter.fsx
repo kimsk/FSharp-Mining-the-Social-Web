@@ -28,7 +28,7 @@ PrettyTable.show "Common Trends" (commonTrends)
 let q = "#fsharp"
 
 // get five batches, 100 tweets each
-let statuses = Search.getStatuses q 100 20
+let statuses = Search.getStatuses q 100 5
 
 statuses    
     |> Seq.distinctBy (fun s -> (s.Text, s.ScreenName)) 
@@ -51,18 +51,18 @@ let screenNames =
             for userMentioned in status.Entities.UserMentionEntities ->
                 userMentioned.ScreenName
     ]
-let hashTags = 
+let hashtags = 
     [
         for status in statuses do
-            for hashTag in status.Entities.HashTagEntities ->
-                hashTag.Tag
+            for hashtag in status.Entities.HashTagEntities ->
+                hashtag.Tag
     ]
 
 let words = statusTexts |> List.collect (fun s -> (s.Split() |> List.ofArray))
 
 (statusTexts |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Status Texts" 
 (screenNames |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Screen Names"
-(hashTags |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Hash Tags"
+(hashtags |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Hashtags"
 (words |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Words"
 
 // Example 7. Creating a basic frequency distribution
@@ -85,9 +85,9 @@ let getMostCommon (tokens:seq<string>) count =
         )
         |> Array.ofSeq
 
-(getMostCommon words 10) |> PrettyTable.showCounts "Most Common Words"
-(getMostCommon screenNames 10) |> PrettyTable.showCounts "Most Common Screen Names"
-(getMostCommon hashTags 10) |> PrettyTable.showCounts "Most Common Hash Tags"
+(getMostCommon words 10) |> PrettyTable.showCounts "Words"
+(getMostCommon screenNames 10) |> PrettyTable.showCounts "Screen Names"
+(getMostCommon hashtags 10) |> PrettyTable.showCounts "Hashtags"
 
 // Example 9. Calculating lexical diversity for tweets
 let lexicalDiversity (tokens:seq<string>) =
@@ -114,7 +114,7 @@ let averageWords (statusTexts:seq<string>) =
 
 lexicalDiversity words
 lexicalDiversity screenNames
-lexicalDiversity hashTags
+lexicalDiversity hashtags
 averageWords statusTexts
 
 // Example 10. Finding the most popular retweets
@@ -123,7 +123,7 @@ let retweets =
         |> Seq.filter (fun s -> s.RetweetCount > 0)
         |> Seq.distinctBy (fun s -> s.Text)
         |> Seq.sortBy (fun s -> -s.RetweetCount)                                
-        |> Seq.map (fun s -> (s.StatusID, s.RetweetCount, s.Text, s.User.Identifier.ScreenName))                
+        |> Seq.map (fun s -> (s.RetweetCount, s.User.Identifier.ScreenName, s.Text))                
 
 PrettyTable.show "Most Popular Retweets" retweets
 
@@ -157,14 +157,63 @@ retweeters |> PrettyTable.show "Retweeters"
 
 
 // Example 12. Plotting frequencies of words
+#r "System.Windows.Forms.DataVisualization.dll"
+#r @"..\lib\FSharp.Charting.dll"
+open FSharp.Charting
+
 words |> PrettyTable.showListOfStrings "Words"
 
-let countWords = 
+let wordCounts = 
     query {
         for word in words do
         groupBy word into g
         select (g.Key, g.Count())
-    }  
+    } 
+    
+let idxFreqLogLog =  
+    wordCounts
         |> Seq.sortBy (fun x -> -snd(x))
+        |> Seq.mapi (fun i x ->  log(float (i+1)), log(float <| snd(x)))        
 
-countWords |> PrettyTable.show "Word Counts"
+idxFreqLogLog |> PrettyTable.show "Index and Frequency"
+
+(Chart.Line(idxFreqLogLog, Name="Example 12", Title="Frequency Data", YTitle="Freq", XTitle="Word Rank")).ShowChart()
+
+// Example 13. Generating histograms of words, screen names, and hashtags
+let getHistogram items =
+    items 
+        |> Seq.groupBy (snd) 
+        |> Seq.map (fun (k,s) -> k, s.Count())
+        |> Seq.sortBy (fst)
+
+let wordsHistogram = getHistogram wordCounts |> Seq.take 20
+let screenNamesHistogram = 
+    query{
+        for screenName in screenNames do
+        groupBy screenName into g
+        select (g.Key, g.Count())
+    } |> getHistogram |> Seq.take 12
+
+let hashtagsHistogram = 
+    query{
+        for hashtag in hashtags do
+        groupBy hashtag into g
+        select (g.Key, g.Count())
+    } |> getHistogram |> Seq.take 12
+
+let yTitle = "Number of items in bin"
+let xTitle = "Bins (number of times an items appeared)"
+Chart.Column(wordsHistogram, Name="Words", YTitle=yTitle, XTitle=xTitle)
+    .ShowChart()
+Chart.Column(screenNamesHistogram, Name="Screen Names", YTitle=yTitle, XTitle=xTitle).ShowChart()
+Chart.Column(hashtagsHistogram, Name="Hashtags", YTitle=yTitle, XTitle=xTitle).ShowChart()
+
+
+// Example 14. Generating a histogram of retweet counts
+let retweetsHistogram = 
+    retweets     
+    |> Seq.groupBy (fun (c,_,_) -> c)
+    |> Seq.map (fun (k,s) -> k, s.Count())
+    |> Seq.sortBy (fst)
+
+Chart.Column(retweetsHistogram, Name="Retweets", YTitle=yTitle, XTitle=xTitle).ShowChart()
