@@ -59,9 +59,11 @@
     <Compile Include="TwitterContext.fs" />
     <Compile Include="Trends.fs" />
     <Compile Include="Search.fs" />
-    <None Include="Twitter.fsx" />
+    <None Include="Examples.fsx" />
     <Compile Include="Program.fs" />
     <None Include="README.md" />
+    <None Include="MyTweets.fsx" />
+    <None Include="FSharpTweeters.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
