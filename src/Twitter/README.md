@@ -100,18 +100,18 @@ let screenNames =
             for userMentioned in status.Entities.UserMentionEntities ->
                 userMentioned.ScreenName
     ]
-let hashTags = 
+let hashtags = 
     [
         for status in statuses do
-            for hashTag in status.Entities.HashTagEntities ->
-                hashTag.Tag
+            for hashtag in status.Entities.HashTagEntities ->
+                hashtag.Tag
     ]
 
 let words = statusTexts |> List.collect (fun s -> (s.Split() |> List.ofArray))
 
 (statusTexts |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Status Texts" 
 (screenNames |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Screen Names"
-(hashTags |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Hash Tags"
+(hashTags |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Hashtags"
 (words |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Words"
 ```
 
@@ -135,10 +135,17 @@ let getMostCommon (tokens:seq<string>) count =
         )
         |> Array.ofSeq
 
-(getMostCommon words 10) |> PrettyTable.showCounts "Most Common Words"
-(getMostCommon screenNames 10) |> PrettyTable.showCounts "Most Common Screen Names"
-(getMostCommon hashTags 10) |> PrettyTable.showCounts "Most Common Hash Tags"
+(getMostCommon words 10) |> PrettyTable.showCounts "Words"
+(getMostCommon screenNames 10) |> PrettyTable.showCounts "Screen Names"
+(getMostCommon hashTags 10) |> PrettyTable.showCounts "Hashtags"
 ```
+
+![Words](https://raw.github.com/kimsk/FSharp-Mining-the-Social-Web/master/src/images/Twitter-Example-8-Words.PNG)
+
+![Screen Names](https://raw.github.com/kimsk/FSharp-Mining-the-Social-Web/master/src/images/Twitter-Example-8-ScreenNames.PNG)
+
+![Hashtags](https://raw.github.com/kimsk/FSharp-Mining-the-Social-Web/master/src/images/Twitter-Example-8-HashTags.PNG)
+
 
 ####Example 8. F# PrettyTable using DataGrid
 ```fsharp
