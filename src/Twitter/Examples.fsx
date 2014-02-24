@@ -67,7 +67,7 @@ let words = statusTexts |> List.collect (fun s -> (s.Split() |> List.ofArray))
 
 // Example 7. Creating a basic frequency distribution
 // Example 8. Pretty table
-let getMostCommon (tokens:seq<string>) count =
+let getMostCommon count (tokens:seq<string>)=
     let tokensCount = tokens |> Seq.length
     let len = if tokensCount <= count then tokensCount else count
     query {
@@ -85,9 +85,9 @@ let getMostCommon (tokens:seq<string>) count =
         )
         |> Array.ofSeq
 
-(getMostCommon words 10) |> PrettyTable.showCounts "Words"
-(getMostCommon screenNames 10) |> PrettyTable.showCounts "Screen Names"
-(getMostCommon hashtags 10) |> PrettyTable.showCounts "Hashtags"
+words |> (getMostCommon 10) |> PrettyTable.showCounts "Words"
+screenNames |> (getMostCommon 10) |> PrettyTable.showCounts "Screen Names"
+hashtags |> (getMostCommon 10) |> PrettyTable.showCounts "Hashtags"
 
 // Example 9. Calculating lexical diversity for tweets
 let lexicalDiversity (tokens:seq<string>) =
