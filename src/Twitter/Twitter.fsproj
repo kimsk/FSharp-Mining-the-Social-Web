@@ -64,6 +64,8 @@
     <None Include="README.md" />
     <None Include="MyTweets.fsx" />
     <None Include="FSharpTweeters.fsx" />
+    <None Include="LamdaExpression.fsx" />
+    <Compile Include="Status.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
