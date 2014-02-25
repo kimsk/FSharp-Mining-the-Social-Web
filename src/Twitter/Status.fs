@@ -5,22 +5,35 @@ open System.Linq
 open LinqToTwitter
 open TwitterContext
 open Microsoft.FSharp.Linq.RuntimeHelpers
+open Microsoft.FSharp.Quotations
 
-let buildSearchQuery statusType (filters:(Status->bool) list) = 
-    let status = ctx.Status.Where(fun s -> s.Type = statusType)
+let expr f = 
+    let f' = <@ Func<_,_>(f) @>
+    LeafExpressionConverter
+        .QuotationToLambdaExpression(f')
 
-    let expr f = 
-        LeafExpressionConverter
-            .QuotationToLambdaExpression(<@ Func<_, _>(f)@>)
+let buildSearchQuery statusType filters = 
+    let status = ctx.Status.Where(fun s -> s.Type = statusType)    
         
-    filters |> List.fold (fun (q:IQueryable<Status>) f -> q.Where(expr f)) status
+    (filters 
+        |> List.fold (fun (q:IQueryable<Status>) f -> q.Where(expr f)) status)
 
-[
-    (fun (s:Status) -> s.ScreenName = "kimsk")
-    (fun s -> s.Count = 10)
-] 
+let filters = 
+    [
+        (fun (s:Status) -> s.ScreenName = "kimsk")
+        (fun s -> s.Count = 1)
+    ] 
+
+filters
     |> buildSearchQuery StatusType.User 
-    |> Array.ofSeq
+    |> Array.ofSeq |> ignore
 
-buildSearchQuery StatusType.User []
-    |> Array.ofSeq
+let expr' = LeafExpressionConverter.QuotationToLambdaExpression(<@ Func<Status, bool>(fun t -> t.Count = 1)@>)
+
+(buildSearchQuery StatusType.User [])
+    //.Where(expr filters.Head)
+    //.Where(expr (fun (t:Status) -> t.Count = 1))
+    //.Where(LeafExpressionConverter.QuotationToLambdaExpression(<@ Func<Status, bool>(fun t -> t.Count = 1)@>))
+    .Where(LeafExpressionConverter.QuotationToLambdaExpression(<@ Func<Status, bool>(filters.Head)@>))
+    //.Where(expr')
+    |> Array.ofSeq |> ignore

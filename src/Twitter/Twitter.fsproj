@@ -60,12 +60,12 @@
     <Compile Include="Trends.fs" />
     <Compile Include="Search.fs" />
     <None Include="Examples.fsx" />
-    <Compile Include="Program.fs" />
     <None Include="README.md" />
     <None Include="MyTweets.fsx" />
     <None Include="FSharpTweeters.fsx" />
     <None Include="LamdaExpression.fsx" />
     <Compile Include="Status.fs" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
