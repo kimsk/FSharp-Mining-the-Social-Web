@@ -37,3 +37,14 @@ let expr' = LeafExpressionConverter.QuotationToLambdaExpression(<@ Func<Status, 
     .Where(LeafExpressionConverter.QuotationToLambdaExpression(<@ Func<Status, bool>(filters.Head)@>))
     //.Where(expr')
     |> Array.ofSeq |> ignore
+
+let filters' = 
+    [
+        LeafExpressionConverter.QuotationToLambdaExpression(<@ Func<_,_>(fun (s:Status) -> s.ScreenName = "kimsk") @>)        
+        LeafExpressionConverter.QuotationToLambdaExpression(<@ Func<_,_>(fun s -> s.Count = 1) @>)
+    ] 
+
+let filters'' = filters |> List.map (fun f -> LeafExpressionConverter.QuotationToLambdaExpression(<@ Func<Status, bool>(f)@>))
+
+ctx.Status.Where(fun s -> s.Type = StatusType.User)
+    .Where(filters'.Head) |> Array.ofSeq
