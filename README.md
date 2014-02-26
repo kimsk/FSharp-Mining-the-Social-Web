@@ -13,9 +13,12 @@ The book recommends Python and (very cool) [iPython Notebook](http://ipython.org
 
 However, I am learning F# and would like to learn more about Data Science, so I think it would be great to implement the code from the book using F# instead :-).
 
+Learn more about using F# for Data Science at [Using F# for Data Science](http://fsharp.org/data-science/) at [The F# Software Foundation site](http://fsharp.org/)
+
 Let's start with [Mining Twitter](https://github.com/kimsk/FSharp-Mining-the-Social-Web/tree/master/src/Twitter)
 
 ##Links
 * [Mining the Social Web](http://miningthesocialweb.com/)
 * [iPython Notebook for Mining the Social Web](http://nbviewer.ipython.org/github/ptwobrussell/Mining-the-Social-Web-2nd-Edition/tree/master/ipynb/)
+* [Using F# for Data Science](http://fsharp.org/data-science/)
 
