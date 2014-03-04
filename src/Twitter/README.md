@@ -3,12 +3,6 @@
 
 >The first chapter is available [here](http://nbviewer.ipython.org/github/ptwobrussell/Mining-the-Social-Web-2nd-Edition/blob/master/ipynb/__Chapter%201%20-%20Mining%20Twitter%20%28Full-Text%20Sampler%29.ipynb).
 
-##Credits
-* [Matthew A. Russell](https://twitter.com/ptwobrussell), the author of [Mining the Social Web: Data Mining Facebook, Twitter, LinkedIn, Google+,and More](http://shop.oreilly.com/product/0636920030195.do)
-* [Don Syme](https://twitter.com/dsyme) and people at Microsoft for F# :-).
-* [Joe Mayo](https://twitter.com/JoeMayo) for his awesome [LINQ to Twitter](https://linqtotwitter.codeplex.com/)
-* [Visualizing Data in a Grid](http://blogs.msdn.com/b/dsyme/archive/2010/01/08/f-interactive-tips-and-tricks-visualizing-data-in-a-grid.aspx)
-* [FSharp.Charting](http://fsharp.github.io/FSharp.Charting/)
 
 ####Linq To Twitter
 #####Trends
