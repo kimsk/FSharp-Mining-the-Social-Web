@@ -17,8 +17,12 @@ Learn more about using F# for Data Science at [Using F# for Data Science](http:/
 
 Let's start with [Mining Twitter](https://github.com/kimsk/FSharp-Mining-the-Social-Web/tree/master/src/Twitter)
 
-##Links
-* [Mining the Social Web](http://miningthesocialweb.com/)
-* [iPython Notebook for Mining the Social Web](http://nbviewer.ipython.org/github/ptwobrussell/Mining-the-Social-Web-2nd-Edition/tree/master/ipynb/)
-* [Using F# for Data Science](http://fsharp.org/data-science/)
 
+##Credits & Links
+* [Matthew A. Russell](https://twitter.com/ptwobrussell), the author of [Mining the Social Web: Data Mining Facebook, Twitter, LinkedIn, Google+,and More](http://shop.oreilly.com/product/0636920030195.do)
+* [Don Syme](https://twitter.com/dsyme) and people at [Microsoft](http://research.microsoft.com/en-us/um/cambridge/projects/fsharp/ack.aspx) for F# :-).
+* [Joe Mayo](https://twitter.com/JoeMayo) for his awesome [LINQ to Twitter](https://linqtotwitter.codeplex.com/)
+* [Using F# for Data Science](http://fsharp.org/data-science/)
+* [Visualizing Data in a Grid](http://blogs.msdn.com/b/dsyme/archive/2010/01/08/f-interactive-tips-and-tricks-visualizing-data-in-a-grid.aspx)
+* [FSharp.Charting](http://fsharp.github.io/FSharp.Charting/)
+* [iPython Notebook for Mining the Social Web](http://nbviewer.ipython.org/github/ptwobrussell/Mining-the-Social-Web-2nd-Edition/tree/master/ipynb/)
