@@ -1,5 +1,11 @@
 ﻿#Mining Twitter
 
+#### Concepts
+- Basic frequency distribution : most common
+- Lexical diversity
+- Average words
+- Ploting log-log graph for frequencies of words 
+- Histograms
 
 >The first chapter is available [here](http://nbviewer.ipython.org/github/ptwobrussell/Mining-the-Social-Web-2nd-Edition/blob/master/ipynb/__Chapter%201%20-%20Mining%20Twitter%20%28Full-Text%20Sampler%29.ipynb).
 
