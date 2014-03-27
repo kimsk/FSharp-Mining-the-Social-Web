@@ -123,6 +123,8 @@ let words = statusTexts |> List.collect (fun s -> (s.Split() |> List.ofArray))
 (words |> Array.ofSeq).[..5] |> PrettyTable.showListOfStrings "Words"
 ```
 
+We can also do [List comprehension](http://en.wikipedia.org/wiki/List_comprehension#F.23) in F# like in [Python](http://docs.python.org/2/tutorial/datastructures.html#list-comprehensions).
+
 ####Example 7. Creating a basic frequency distribution
 ```fsharp
 let getMostCommon (tokens:seq<string>) count =
