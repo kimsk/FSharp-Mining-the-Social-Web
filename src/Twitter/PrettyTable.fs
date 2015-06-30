@@ -2,7 +2,11 @@
 
 open System.Drawing
 open System.Windows.Forms
+(*
+ 
+    create form
 
+*)
 let buildForm title = 
     let form = new Form(Visible = true, Text = title, TopMost = true, Size = Size(600, 600))
     let data = 
