@@ -15,6 +15,7 @@ let buildForm title =
     form.Controls.Add(data)
     data
 
+// show form with title
 let show title dataSource = 
     let data = buildForm title
     data.DataSource <- (dataSource |> Array.ofSeq)
